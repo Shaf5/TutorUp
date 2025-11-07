@@ -292,4 +292,9 @@ INSERT INTO Review (BookingID, Rating, Comment, ReviewDate) VALUES
 (5, 4, 'Helpful, went through examples.', '2025-11-11 10:30:00'),
 (8, 5, 'Very clear writing tips.', '2025-11-12 10:30:00'),
 (11, 5, 'Psych session was engaging.', '2025-11-13 11:30:00'),
-(12, 4, 'Econ recap was useful.', '2025-11-13 12:30:00');
+(12, 4, 'Econ recap was useful.', '2025-11-13 12:30:00'),
+(13, 5, 'Great communication and teaching style.', '2025-11-13 14:00:00'),
+(14, 4, 'Interesting discussion, could use more examples.', '2025-11-14 09:00:00'),
+(15, 5, 'Best session I have attended so far.', '2025-11-14 12:00:00'),
+(16, 3, 'Okay session, a bit fast-paced.', '2025-11-15 10:30:00'),
+(18, 5, 'Very engaging tutor, learned a lot!', '2025-11-15 13:30:00');
