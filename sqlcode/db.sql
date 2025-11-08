@@ -397,7 +397,11 @@ WHERE b.StudentID = 12
   AND s.Date < CURDATE()
 ORDER BY s.Date DESC, s.StartTime DESC;
 
--- 7A. When student submits a review for a completed session
+-- 7A. When student submits a review for a completed session only if they attended
+SELECT Attended
+FROM Attendance
+WHERE BookingID = 10;
+-- If attended = 'Yes', insert review
 INSERT INTO Review (BookingID, Rating, Comment, ReviewDate)
 VALUES (10, 5, 'Business concepts were very clear.', NOW());
 
@@ -462,24 +466,26 @@ WHERE BookingID = 5;
 
 
 -- 10. When tutor views past sessions with attendance and reviews
-SELECT b.BookingID,
-       s.Date,
-       s.StartTime,
-       s.Location,
-       c.CourseName,
-       st.FullName AS StudentName,
-       a.Attended,
-       r.Rating,
-       r.Comment
+SELECT 
+    b.BookingID,
+    s.Date,
+    s.StartTime,
+    s.Location,
+    c.CourseName,
+    st.FullName AS StudentName,
+    a.Attended AS AttendedStatus,     -- <-- shows Yes / No from Attendance
+    r.Rating,
+    r.Comment
 FROM Booking b
 JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
 JOIN Course c          ON s.CourseID = c.CourseID
 JOIN Student st        ON b.StudentID = st.StudentID
-LEFT JOIN Attendance a ON b.BookingID = a.BookingID
+LEFT JOIN Attendance a ON b.BookingID = a.BookingID   -- keep LEFT so missing rows still show
 LEFT JOIN Review r     ON b.BookingID = r.BookingID
 WHERE s.TutorID = 3
   AND s.Date < CURDATE()
 ORDER BY s.Date DESC, s.StartTime DESC;
+
 
 -- 11. Update booking status to Completed for past sessions
 UPDATE Booking b
