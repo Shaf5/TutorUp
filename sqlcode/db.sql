@@ -333,44 +333,64 @@ CREATE PROCEDURE GetStudentSessions (
     IN p_sort VARCHAR(20)
 )
 BEGIN
+    -- sort by tutor name
     IF p_sort = 'tutor' THEN
-        SELECT b.booking_id, b.status, s.date, s.start_time,
-               c.course_name, t.full_name AS tutor_name
+        SELECT 
+            b.BookingID,
+            b.Status,
+            s.Date,
+            s.StartTime,
+            c.CourseName,
+            t.FullName AS TutorName
         FROM Booking b
-        JOIN AvailabilitySlot s ON b.slot_id = s.slot_id
-        JOIN Course c           ON s.course_id = c.course_id
-        JOIN Tutor t            ON s.tutor_id = t.tutor_id
-        WHERE b.student_id = p_student_id
-          AND s.date >= CURDATE()
-          AND b.status <> 'Canceled'
-        ORDER BY t.full_name, s.date, s.start_time;
+        JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
+        JOIN Course c           ON s.CourseID = c.CourseID
+        JOIN Tutor t            ON s.TutorID = t.TutorID
+        WHERE b.StudentID = p_student_id
+          AND s.Date >= CURDATE()
+          AND b.Status <> 'Cancelled'
+        ORDER BY t.FullName, s.Date, s.StartTime;
+
+    -- sort by course name
     ELSEIF p_sort = 'course' THEN
-        SELECT b.booking_id, b.status, s.date, s.start_time,
-               c.course_name, t.full_name AS tutor_name
+        SELECT 
+            b.BookingID,
+            b.Status,
+            s.Date,
+            s.StartTime,
+            c.CourseName,
+            t.FullName AS TutorName
         FROM Booking b
-        JOIN AvailabilitySlot s ON b.slot_id = s.slot_id
-        JOIN Course c           ON s.course_id = c.course_id
-        JOIN Tutor t            ON s.tutor_id = t.tutor_id
-        WHERE b.student_id = p_student_id
-          AND s.date >= CURDATE()
-          AND b.status <> 'Canceled'
-        ORDER BY c.course_name, s.date, s.start_time;
+        JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
+        JOIN Course c           ON s.CourseID = c.CourseID
+        JOIN Tutor t            ON s.TutorID = t.TutorID
+        WHERE b.StudentID = p_student_id
+          AND s.Date >= CURDATE()
+          AND b.Status <> 'Cancelled'
+        ORDER BY c.CourseName, s.Date, s.StartTime;
+
+    -- default: sort by date/time
     ELSE
-        -- default: by date/time
-        SELECT b.booking_id, b.status, s.date, s.start_time,
-               c.course_name, t.full_name AS tutor_name
+        SELECT 
+            b.BookingID,
+            b.Status,
+            s.Date,
+            s.StartTime,
+            c.CourseName,
+            t.FullName AS TutorName
         FROM Booking b
-        JOIN AvailabilitySlot s ON b.slot_id = s.slot_id
-        JOIN Course c           ON s.course_id = c.course_id
-        JOIN Tutor t            ON s.tutor_id = t.tutor_id
-        WHERE b.student_id = p_student_id
-          AND s.date >= CURDATE()
-          AND b.status <> 'Canceled'
-        ORDER BY s.date, s.start_time;
+        JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
+        JOIN Course c           ON s.CourseID = c.CourseID
+        JOIN Tutor t            ON s.TutorID = t.TutorID
+        WHERE b.StudentID = p_student_id
+          AND s.Date >= CURDATE()
+          AND b.Status <> 'Cancelled'
+        ORDER BY s.Date, s.StartTime;
     END IF;
 END$$
 
 DELIMITER ;
+
 
 -- You can run this by:
 CALL GetStudentSessions(12, 'tutor');
