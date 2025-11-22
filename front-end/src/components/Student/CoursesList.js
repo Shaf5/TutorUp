@@ -10,6 +10,7 @@ function CoursesList({ major, onNavigate, onSelectCourse }) {
     if (major) {
       fetchCourses();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [major]);
 
   const fetchCourses = async () => {

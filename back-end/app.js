@@ -23,6 +23,7 @@ const coursesRoutes = require("./routes/courses");
 const bookingsRoutes = require("./routes/bookings");
 const slotsRoutes = require("./routes/slots");
 const studentsRoutes = require("./routes/students");
+const healthRoutes = require("./routes/health");
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -31,6 +32,7 @@ app.use("/api/courses", coursesRoutes);
 app.use("/api/bookings", bookingsRoutes);
 app.use("/api/slots", slotsRoutes);
 app.use("/api/students", studentsRoutes);
+app.use("/api/health", healthRoutes);
 
 // Root route
 app.get("/", (req, res) => {

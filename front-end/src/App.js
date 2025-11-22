@@ -2,26 +2,26 @@ import React, { useState } from 'react';
 import './App.css';
 
 // Auth Components
-import Welcome from './components/auth/Welcome';
-import StudentSignup from './components/auth/StudentSignup';
-import TutorSignup from './components/auth/TutorSignup';
-import StudentSignin from './components/auth/StudentSignin';
-import TutorSignin from './components/auth/TutorSignin';
+import Welcome from './components/Auth/Welcome';
+import StudentSignup from './components/Auth/StudentSignup';
+import TutorSignup from './components/Auth/TutorSignup';
+import StudentSignin from './components/Auth/StudentSignin';
+import TutorSignin from './components/Auth/TutorSignin';
 
 // Student Components
-import MajorsList from './components/student/MajorsList';
-import CoursesList from './components/student/CoursesList';
-import CourseDetail from './components/student/CourseDetail';
-import StudentSessions from './components/student/StudentSessions';
-import StudentProfile from './components/student/StudentProfile';
+import MajorsList from './components/Student/MajorsList';
+import CoursesList from './components/Student/CoursesList';
+import CourseDetail from './components/Student/CourseDetail';
+import StudentSessions from './components/Student/StudentSessions';
+import StudentProfile from './components/Student/StudentProfile';
 
 // Tutor Components
-import TutorSessions from './components/tutor/TutorSessions';
-import TutorProfile from './components/tutor/TutorProfile';
+import TutorSessions from './components/Tutor/TutorSessions';
+import TutorProfile from './components/Tutor/TutorProfile';
 
 // Slot Components
-import TodaySlots from './components/slots/TodaySlots';
-import TomorrowSlots from './components/slots/TomorrowSlots';
+import TodaySlots from './components/Slots/TodaySlots';
+import TomorrowSlots from './components/Slots/TomorrowSlots';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('welcome');

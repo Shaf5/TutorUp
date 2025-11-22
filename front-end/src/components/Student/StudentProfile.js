@@ -16,6 +16,7 @@ function StudentProfile({ studentId, onNavigate, onLogout }) {
 
   useEffect(() => {
     fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
 
   const fetchProfile = async () => {

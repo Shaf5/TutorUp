@@ -11,6 +11,7 @@ function CourseDetail({ course, studentId, onNavigate }) {
     if (course) {
       fetchSlots();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [course]);
 
   const fetchSlots = async () => {

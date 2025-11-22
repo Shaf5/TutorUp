@@ -17,6 +17,7 @@ function StudentSessions({ studentId, onNavigate }) {
 
   useEffect(() => {
     fetchSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
 
   const fetchSessions = async () => {
