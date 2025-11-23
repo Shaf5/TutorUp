@@ -43,9 +43,18 @@ function TutorSessions({ tutorId, onNavigate }) {
   // Client-side sort for past sessions
   const sortedPastSessions = [...pastSessions].sort((a, b) => {
     if (pastSortBy === 'Recent') {
-      return new Date(`${b.Date} ${b.StartTime}`) - new Date(`${a.Date} ${a.StartTime}`);
+      // Parse MySQL datetime format properly
+      const dateStrA = a.Date.split('T')[0];
+      const dateStrB = b.Date.split('T')[0];
+      const dateA = new Date(`${dateStrA} ${a.StartTime}`);
+      const dateB = new Date(`${dateStrB} ${b.StartTime}`);
+      return dateB - dateA;
     } else if (pastSortBy === 'Oldest') {
-      return new Date(`${a.Date} ${a.StartTime}`) - new Date(`${b.Date} ${b.StartTime}`);
+      const dateStrA = a.Date.split('T')[0];
+      const dateStrB = b.Date.split('T')[0];
+      const dateA = new Date(`${dateStrA} ${a.StartTime}`);
+      const dateB = new Date(`${dateStrB} ${b.StartTime}`);
+      return dateA - dateB;
     } else if (pastSortBy === 'Course') {
       return a.CourseName.localeCompare(b.CourseName);
     } else if (pastSortBy === 'Student') {
