@@ -38,7 +38,32 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // Try to insert booking. Unique constraint on (StudentID, SlotID) will prevent duplicates.
+    // Check for existing bookings (only Confirmed ones matter)
+    const [existingBookings] = await connection.query(
+      'SELECT BookingID, Status FROM Booking WHERE StudentID = ? AND SlotID = ?',
+      [studentId, slotId]
+    );
+
+    // If there's already a confirmed booking, prevent duplicate
+    const confirmedBooking = existingBookings.find(b => b.Status === 'Confirmed');
+    if (confirmedBooking) {
+      await connection.rollback();
+      return res.status(409).json({
+        success: false,
+        error: 'You cannot book the same slot twice'
+      });
+    }
+
+    // If there's a cancelled booking, delete it to allow rebooking
+    const cancelledBooking = existingBookings.find(b => b.Status === 'Cancelled');
+    if (cancelledBooking) {
+      await connection.query(
+        'DELETE FROM Booking WHERE BookingID = ?',
+        [cancelledBooking.BookingID]
+      );
+    }
+
+    // Create the new booking
     const [result] = await connection.query(
       'INSERT INTO Booking (Status, SlotID, StudentID) VALUES (?, ?, ?)',
       ['Confirmed', slotId, studentId]
@@ -61,20 +86,6 @@ const createBooking = async (req, res) => {
       console.error('Rollback error:', rbErr);
     }
 
-    // MySQL duplicate entry (unique constraint) -> student trying to book same slot twice
-    if (
-      error && (
-        error.code === 'ER_DUP_ENTRY' ||
-        error.errno === 1062 ||
-        (error.sqlMessage && error.sqlMessage.includes('Duplicate entry'))
-      )
-    ) {
-      return res.status(409).json({
-        success: false,
-        error: 'You cannot book the same slot twice'
-      });
-    }
-
     if (error.message && error.message.includes('slot is not Open')) {
       return res.status(400).json({
         success: false,
@@ -84,7 +95,7 @@ const createBooking = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      error: 'You have already booked this slot!'
+      error: 'Server error while creating booking'
     });
   } finally {
     if (connection) connection.release();

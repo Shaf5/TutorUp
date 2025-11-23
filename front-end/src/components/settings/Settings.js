@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { updateStudentPassword, deleteStudentAccount } from '../../services/api';
 
 function Settings({ user, userType, onNavigate, onLogout }) {
-  const [theme, setTheme] = useState('light');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState('');
@@ -13,23 +12,6 @@ function Settings({ user, userType, onNavigate, onLogout }) {
     confirmPassword: ''
   });
   const [deletePassword, setDeletePassword] = useState('');
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    applyTheme(savedTheme);
-  }, []);
-
-  const applyTheme = (newTheme) => {
-    document.body.className = newTheme === 'dark' ? 'dark-theme' : '';
-    localStorage.setItem('theme', newTheme);
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    applyTheme(newTheme);
-  };
 
   const handlePasswordChange = (e) => {
     setPasswordData({
@@ -98,23 +80,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
-      {/* Theme Toggle */}
-  <div className="card" style={{ marginBottom: '30px' }}>
-        <h3>Appearance</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <label style={{ fontSize: '1.1em' }}>Theme:</label>
-          <button 
-            className="btn" 
-            onClick={toggleTheme}
-            style={{ minWidth: '120px' }}
-          >
-            {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
-          </button>
-        </div>
-        <p style={{ marginTop: '10px', color: '#666', fontSize: '0.9em' }}>
-          Current theme: <strong>{theme === 'light' ? 'Light' : 'Dark'}</strong>
-        </p>
-      </div>
+
 
       {/* Password Change */}
   <div className="card" style={{ marginBottom: '30px' }}>
