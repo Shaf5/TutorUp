@@ -40,6 +40,13 @@
   transform: translateY(-2px);
 }
 
+.main-nav button.active {
+  background-color: rgba(255, 255, 255, 0.412);
+  border-color: #4000e2c2;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  /* font-weight: bold; */
+}
+
 .App-main {
   padding: 40px 20px;
   max-width: 1200px;
@@ -296,4 +303,40 @@ body.dark-theme .link-button {
 
 body.dark-theme .link-button:hover {
   color: #c5cae9;
+}
+
+/* Dark theme for inline styled containers (Settings, Profile pages) */
+body.dark-theme div[style*="background: #f8f9fa"],
+body.dark-theme div[style*="background: rgb(248, 249, 250)"],
+body.dark-theme div[style*="background:#f8f9fa"] {
+  background: #1a202c !important;
+}
+
+body.dark-theme div[style*="background: #ffebee"],
+body.dark-theme div[style*="background: rgb(255, 235, 238)"],
+body.dark-theme div[style*="background:#ffebee"] {
+  background: #742a2a !important;
+}
+
+/* Dark theme for text in inline styled containers */
+body.dark-theme div[style*="background: #f8f9fa"] h3,
+body.dark-theme div[style*="background: rgb(248, 249, 250)"] h3,
+body.dark-theme div[style*="background:#f8f9fa"] h3 {
+  color: #e0e0e0;
+}
+
+body.dark-theme div[style*="background: #f8f9fa"] p,
+body.dark-theme div[style*="background: rgb(248, 249, 250)"] p,
+body.dark-theme div[style*="background:#f8f9fa"] p {
+  color: #a0aec0;
+}
+
+body.dark-theme div[style*="background: #f8f9fa"] label,
+body.dark-theme div[style*="background: rgb(248, 249, 250)"] label,
+body.dark-theme div[style*="background:#f8f9fa"] label {
+  color: #e0e0e0;
+}
+
+body.dark-theme div[style*="color: #666"] {
+  color: #a0aec0 !important;
 }
