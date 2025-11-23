@@ -17,8 +17,9 @@ const createBooking = async (req, res) => {
     await connection.beginTransaction();
 
     // Lock the slot row to avoid race conditions when checking availability
+    // Also fetch the slot date/time so we can check for overlaps
     const [slots] = await connection.query(
-      'SELECT Status FROM AvailabilitySlot WHERE SlotID = ? FOR UPDATE',
+      'SELECT Status, Date, StartTime, EndTime, TutorID FROM AvailabilitySlot WHERE SlotID = ? FOR UPDATE',
       [slotId]
     );
 
@@ -38,46 +39,124 @@ const createBooking = async (req, res) => {
       });
     }
 
-    // Check for existing bookings (only Confirmed ones matter)
-    const [existingBookings] = await connection.query(
-      'SELECT BookingID, Status FROM Booking WHERE StudentID = ? AND SlotID = ?',
-      [studentId, slotId]
-    );
+    // Prevent overlapping bookings for the same student.
+    // Approach: acquire a named lock per-student to serialize booking attempts for that student,
+    // then check for any Confirmed bookings that overlap the target slot's date/time.
+    // This avoids race conditions where two concurrent requests could both pass the check.
 
-    // If there's already a confirmed booking, prevent duplicate
-    const confirmedBooking = existingBookings.find(b => b.Status === 'Confirmed');
-    if (confirmedBooking) {
+    const slot = slots[0];
+    const slotDate = slot.Date; // assuming format 'YYYY-MM-DD'
+    const slotStart = slot.StartTime; // assuming time string 'HH:MM:SS'
+    const slotEnd = slot.EndTime;
+  const slotTutorId = slot.TutorID;
+
+    // Acquire a named lock for this student (timeout 5 seconds)
+    const lockName = `student_booking_${studentId}`;
+    const [lockRows] = await connection.query('SELECT GET_LOCK(?, 5) AS got_lock', [lockName]);
+    const gotLock = lockRows && lockRows[0] && lockRows[0].got_lock;
+    if (!gotLock) {
       await connection.rollback();
-      return res.status(409).json({
-        success: false,
-        error: 'You cannot book the same slot twice'
-      });
+      return res.status(503).json({ success: false, error: 'Server busy; please try again' });
     }
 
-    // If there's a cancelled booking, delete it to allow rebooking
-    const cancelledBooking = existingBookings.find(b => b.Status === 'Cancelled');
-    if (cancelledBooking) {
-      await connection.query(
-        'DELETE FROM Booking WHERE BookingID = ?',
-        [cancelledBooking.BookingID]
+    try {
+      // Find any confirmed bookings for this student that overlap the same date/time
+      // Overlap condition: NOT (existing.EndTime <= new.StartTime OR existing.StartTime >= new.EndTime)
+      const [overlaps] = await connection.query(
+        `SELECT b.BookingID, b.Status, s.Date, s.StartTime, s.EndTime
+         FROM Booking b
+         JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
+         WHERE b.StudentID = ?
+           AND b.Status = 'Confirmed'
+           AND s.Date = ?
+           AND NOT (s.EndTime <= ? OR s.StartTime >= ?)`,
+        [studentId, slotDate, slotStart, slotEnd]
       );
+
+      if (overlaps.length > 0) {
+        // Release the lock before returning
+        await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+        await connection.rollback();
+        return res.status(409).json({
+          success: false,
+          error: 'You already have a confirmed booking that overlaps this time'
+        });
+      }
+
+      // Prevent booking another session with the same tutor on the same day
+      if (slotTutorId) {
+        const [sameTutor] = await connection.query(
+          `SELECT b.BookingID
+           FROM Booking b
+           JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
+           WHERE b.StudentID = ?
+             AND b.Status = 'Confirmed'
+             AND s.TutorID = ?
+             AND s.Date = ?`,
+          [studentId, slotTutorId, slotDate]
+        );
+
+        if (sameTutor.length > 0) {
+          await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+          await connection.rollback();
+          return res.status(409).json({
+            success: false,
+            error: 'You already have a confirmed session with this tutor on the same day'
+          });
+        }
+      }
+
+      // If there's a previous booking for the same slot, handle it (duplicate/cancelled)
+      const [existingBookings] = await connection.query(
+        'SELECT BookingID, Status FROM Booking WHERE StudentID = ? AND SlotID = ?',
+        [studentId, slotId]
+      );
+
+      // If there's already a confirmed booking for this same slot, prevent duplicate
+      const confirmedBooking = existingBookings.find(b => b.Status === 'Confirmed');
+      if (confirmedBooking) {
+        await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+        await connection.rollback();
+        return res.status(409).json({
+          success: false,
+          error: 'You cannot book the same slot twice'
+        });
+      }
+
+      // If there's a cancelled booking for this same slot, delete it to allow rebooking
+      const cancelledBooking = existingBookings.find(b => b.Status === 'Cancelled');
+      if (cancelledBooking) {
+        await connection.query('DELETE FROM Booking WHERE BookingID = ?', [cancelledBooking.BookingID]);
+      }
+
+      // Create the new booking
+      const [result] = await connection.query(
+        'INSERT INTO Booking (Status, SlotID, StudentID) VALUES (?, ?, ?)',
+        ['Confirmed', slotId, studentId]
+      );
+
+      // Release named lock before committing
+      await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+
+      await connection.commit();
+
+      res.status(201).json({
+        success: true,
+        message: 'Booking created successfully',
+        data: { bookingId: result.insertId }
+      });
+      return;
+    } catch (innerErr) {
+      // Attempt to release lock if an error occurs inside the lock scope
+      try {
+        await connection.query('SELECT RELEASE_LOCK(?)', [lockName]);
+      } catch (rerr) {
+        console.error('Error releasing lock after inner error:', rerr);
+      }
+      throw innerErr; // let outer catch handle rollback/response
     }
 
-    // Create the new booking
-    const [result] = await connection.query(
-      'INSERT INTO Booking (Status, SlotID, StudentID) VALUES (?, ?, ?)',
-      ['Confirmed', slotId, studentId]
-    );
-
-    await connection.commit();
-
-    res.status(201).json({
-      success: true,
-      message: 'Booking created successfully',
-      data: {
-        bookingId: result.insertId
-      }
-    });
+    // NOTE: the insertion and commit are handled inside the locking block above
   } catch (error) {
     console.error('Create booking error:', error);
     try {

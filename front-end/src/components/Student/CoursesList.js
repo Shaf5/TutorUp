@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { getCoursesByMajor } from '../../services/api';
+
 // Map course codes or names to image filenames
 const courseImages = {
   // Example: 'CS101': 'cs101.jpg',
@@ -9,8 +12,6 @@ const courseImages = {
   'CHEM101': 'chemistry.jpg',
   // fallback for demonstration
 };
-import React, { useState, useEffect } from 'react';
-import { getCoursesByMajor } from '../../services/api';
 
 function CoursesList({ major, onNavigate, onSelectCourse }) {
   const [courses, setCourses] = useState([]);
