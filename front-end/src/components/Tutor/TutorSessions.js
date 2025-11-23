@@ -6,18 +6,53 @@ function TutorSessions({ tutorId, onNavigate }) {
   const [pastSessions, setPastSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortBy, setSortBy] = useState('Time');
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [pastSortBy, setPastSortBy] = useState('Recent');
+  const [showPastSortMenu, setShowPastSortMenu] = useState(false);
+
+  const sortParamMap = {
+    'Time': 'time',
+    'Course': 'course',
+    'Status': 'status'
+  };
+
+  const pastSortOptions = ['Recent', 'Oldest', 'Course', 'Student'];
 
   useEffect(() => {
     fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorId]);
+  }, [tutorId, sortBy]);
 
   const fetchSessions = async () => {
     try {
       const [upcomingResult, pastResult] = await Promise.all([
-        getTutorUpcomingSessions(tutorId),
+        getTutorUpcomingSessions(tutorId, sortParamMap[sortBy]),
         getTutorPastSessions(tutorId)
       ]);
+  const handleSelectSort = (label) => {
+    setSortBy(label);
+    setShowSortMenu(false);
+  };
+
+  const handleSelectPastSort = (label) => {
+    setPastSortBy(label);
+    setShowPastSortMenu(false);
+  };
+
+  // Client-side sort for past sessions
+  const sortedPastSessions = [...pastSessions].sort((a, b) => {
+    if (pastSortBy === 'Recent') {
+      return new Date(`${b.Date} ${b.StartTime}`) - new Date(`${a.Date} ${a.StartTime}`);
+    } else if (pastSortBy === 'Oldest') {
+      return new Date(`${a.Date} ${a.StartTime}`) - new Date(`${b.Date} ${b.StartTime}`);
+    } else if (pastSortBy === 'Course') {
+      return a.CourseName.localeCompare(b.CourseName);
+    } else if (pastSortBy === 'Student') {
+      return (a.StudentName || '').localeCompare(b.StudentName || '');
+    }
+    return 0;
+  });
 
       if (upcomingResult.success) {
         setUpcomingSessions(upcomingResult.data);
@@ -42,7 +77,33 @@ function TutorSessions({ tutorId, onNavigate }) {
 
       {error && <div className="error-message">{error}</div>}
 
-      <h3>Upcoming Sessions</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0 }}>Upcoming Sessions</h3>
+        <div className="feed-main-sort-container" style={{ maxWidth: '220px' }}>
+          <button
+            className="feed-main-sort-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSortMenu(!showSortMenu);
+            }}
+          >
+            Sort: {sortBy} ▼
+          </button>
+          {showSortMenu && (
+            <div className="feed-main-sort-menu">
+              {['Time','Course','Status'].map(opt => (
+                <div
+                  key={opt}
+                  className="feed-main-sort-option"
+                  onClick={() => handleSelectSort(opt)}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {upcomingSessions.length === 0 ? (
         <div className="empty-state">No upcoming sessions</div>
       ) : (
@@ -62,12 +123,38 @@ function TutorSessions({ tutorId, onNavigate }) {
         </div>
       )}
 
-      <h3 style={{ marginTop: '40px' }}>Past Sessions</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: '40px', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0 }}>Past Sessions</h3>
+        <div className="feed-main-sort-container" style={{ maxWidth: '220px' }}>
+          <button
+            className="feed-main-sort-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPastSortMenu(!showPastSortMenu);
+            }}
+          >
+            Sort: {pastSortBy} ▼
+          </button>
+          {showPastSortMenu && (
+            <div className="feed-main-sort-menu">
+              {pastSortOptions.map(opt => (
+                <div
+                  key={opt}
+                  className="feed-main-sort-option"
+                  onClick={() => handleSelectPastSort(opt)}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {pastSessions.length === 0 ? (
         <div className="empty-state">No past sessions</div>
       ) : (
         <div className="list-container">
-          {pastSessions.map((session, index) => (
+          {sortedPastSessions.map((session, index) => (
             <div key={`${session.BookingID || index}`} className="list-item">
               <h4>{session.CourseName}</h4>
               <p><strong>Date:</strong> {new Date(session.Date).toLocaleDateString()}</p>

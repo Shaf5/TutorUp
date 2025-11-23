@@ -14,17 +14,28 @@ function StudentSessions({ studentId, onNavigate }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [reviewData, setReviewData] = useState({});
-  const [sortOption, setSortOption] = useState('date'); // 'date' (time), 'tutor', 'course'
+  const [sortBy, setSortBy] = useState('Time'); // UI label
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [pastSortBy, setPastSortBy] = useState('Recent'); // Past sessions sort
+  const [showPastSortMenu, setShowPastSortMenu] = useState(false);
+
+  const sortParamMap = {
+    'Time': 'date',
+    'Tutor': 'tutor',
+    'Course': 'course'
+  };
+
+  const pastSortOptions = ['Recent', 'Oldest', 'Tutor', 'Course'];
 
   useEffect(() => {
     fetchSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId, sortOption]);
+  }, [studentId, sortBy]);
 
   const fetchSessions = async () => {
     try {
       const [upcomingResult, pastResult] = await Promise.all([
-        getStudentUpcomingSessions(studentId, sortOption),
+        getStudentUpcomingSessions(studentId, sortParamMap[sortBy]),
         getStudentPastSessions(studentId)
       ]);
 
@@ -41,9 +52,29 @@ function StudentSessions({ studentId, onNavigate }) {
     }
   };
 
-  const handleSortChange = (e) => {
-    setSortOption(e.target.value);
+  const handleSelectSort = (label) => {
+    setSortBy(label);
+    setShowSortMenu(false);
   };
+
+  const handleSelectPastSort = (label) => {
+    setPastSortBy(label);
+    setShowPastSortMenu(false);
+  };
+
+  // Client-side sort for past sessions
+  const sortedPastSessions = [...pastSessions].sort((a, b) => {
+    if (pastSortBy === 'Recent') {
+      return new Date(`${b.Date} ${b.StartTime}`) - new Date(`${a.Date} ${a.StartTime}`);
+    } else if (pastSortBy === 'Oldest') {
+      return new Date(`${a.Date} ${a.StartTime}`) - new Date(`${b.Date} ${b.StartTime}`);
+    } else if (pastSortBy === 'Tutor') {
+      return a.TutorName.localeCompare(b.TutorName);
+    } else if (pastSortBy === 'Course') {
+      return a.CourseName.localeCompare(b.CourseName);
+    }
+    return 0;
+  });
 
   const handleCancelBooking = async (bookingId) => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) {
@@ -131,15 +162,31 @@ function StudentSessions({ studentId, onNavigate }) {
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '15px', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '16px' }}>
         <h3 style={{ margin: 0 }}>Upcoming Sessions</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <label style={{ fontWeight: 'bold' }}>Sort by:</label>
-          <select value={sortOption} onChange={handleSortChange} style={{ padding: '8px', borderRadius: '5px', border: '2px solid #ddd' }}>
-            <option value="date">Time</option>
-            <option value="tutor">Tutor</option>
-            <option value="course">Course</option>
-          </select>
+        <div className="feed-main-sort-container" style={{ maxWidth: '220px' }}>
+          <button
+            className="feed-main-sort-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSortMenu(!showSortMenu);
+            }}
+          >
+            Sort: {sortBy} ▼
+          </button>
+          {showSortMenu && (
+            <div className="feed-main-sort-menu">
+              {['Time','Tutor','Course'].map(opt => (
+                <div
+                  key={opt}
+                  className="feed-main-sort-option"
+                  onClick={() => handleSelectSort(opt)}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {upcomingSessions.length === 0 ? (
@@ -167,12 +214,38 @@ function StudentSessions({ studentId, onNavigate }) {
         </div>
       )}
 
-      <h3 style={{ marginTop: '40px' }}>Past Sessions</h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: '40px', marginBottom: '16px' }}>
+        <h3 style={{ margin: 0 }}>Past Sessions</h3>
+        <div className="feed-main-sort-container" style={{ maxWidth: '220px' }}>
+          <button
+            className="feed-main-sort-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPastSortMenu(!showPastSortMenu);
+            }}
+          >
+            Sort: {pastSortBy} ▼
+          </button>
+          {showPastSortMenu && (
+            <div className="feed-main-sort-menu">
+              {pastSortOptions.map(opt => (
+                <div
+                  key={opt}
+                  className="feed-main-sort-option"
+                  onClick={() => handleSelectPastSort(opt)}
+                >
+                  {opt}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {pastSessions.length === 0 ? (
         <div className="empty-state">No past sessions</div>
       ) : (
         <div className="list-container">
-          {pastSessions.map((session) => (
+          {sortedPastSessions.map((session) => (
             <div key={session.BookingID} className="list-item">
               <h4>{session.CourseName}</h4>
               <p><strong>Date:</strong> {new Date(session.Date).toLocaleDateString()}</p>

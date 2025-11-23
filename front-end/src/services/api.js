@@ -103,8 +103,9 @@ export const getStudentPastSessions = async (studentId) => {
   return response.json();
 };
 
-export const getTutorUpcomingSessions = async (tutorId) => {
-  const response = await fetch(`${API_BASE_URL}/bookings/tutor/${tutorId}/upcoming`);
+export const getTutorUpcomingSessions = async (tutorId, sort) => {
+  const param = sort ? `?sort=${encodeURIComponent(sort)}` : '';
+  const response = await fetch(`${API_BASE_URL}/bookings/tutor/${tutorId}/upcoming${param}`);
   return response.json();
 };
 
