@@ -1,3 +1,10 @@
+// Map course codes or names to image filenames
+const courseImages = {
+  'CS101': 'cs101.jpg',
+  'MATH201': 'math201.jpg',
+  'PHYS101': 'physics.jpg',
+  'CHEM101': 'chemistry.jpg',
+};
 import React, { useState, useEffect } from 'react';
 import { getSlotsByDate, createBooking } from '../../services/api';
 
@@ -89,6 +96,24 @@ function CourseDetail({ course, studentId, onNavigate }) {
 
   return (
     <div className="page-container">
+      <img
+        src={
+          course?.image
+            ? `/course-images/${course.image}`
+            : courseImages[course?.CourseCode]
+              ? `/course-images/${courseImages[course.CourseCode]}`
+              : undefined
+        }
+        alt={course?.CourseName}
+        style={{
+          width: '100%',
+          maxHeight: '220px',
+          objectFit: 'cover',
+          borderRadius: '8px',
+          marginBottom: '18px',
+          display: (course?.image || courseImages[course?.CourseCode]) ? 'block' : 'none'
+        }}
+      />
       <h2>{course?.CourseName}</h2>
       <p><strong>Course Code:</strong> {course?.CourseCode}</p>
       {course?.Description && <p>{course.Description}</p>}

@@ -99,7 +99,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
       {success && <div className="success-message">{success}</div>}
 
       {/* Theme Toggle */}
-      <div style={{ marginBottom: '30px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
+  <div className="card" style={{ marginBottom: '30px' }}>
         <h3>Appearance</h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <label style={{ fontSize: '1.1em' }}>Theme:</label>
@@ -117,7 +117,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
       </div>
 
       {/* Password Change */}
-      <div style={{ marginBottom: '30px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
+  <div className="card" style={{ marginBottom: '30px' }}>
         <h3>Security</h3>
         <button 
           className="btn" 
@@ -168,7 +168,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
       </div>
 
       {/* Privacy Policy */}
-      <div style={{ marginBottom: '30px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
+  <div className="card" style={{ marginBottom: '30px' }}>
         <h3>Privacy & Terms</h3>
         <button className="btn btn-secondary" onClick={() => window.alert('Privacy Policy\n\nYour data is secure and used only for tutoring session management.')}>
           View Privacy Policy
@@ -176,7 +176,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
       </div>
 
       {/* Danger Zone */}
-      <div style={{ marginTop: '30px', borderTop: '2px solid #ccc', paddingTop: '20px' }}>
+      <div className="danger-zone" style={{ marginTop: '30px', borderTop: '2px solid #ccc', paddingTop: '20px' }}>
         <h3 style={{ color: '#e74c3c' }}>Danger Zone</h3>
         <button 
           className="btn btn-danger" 
@@ -186,7 +186,7 @@ function Settings({ user, userType, onNavigate, onLogout }) {
         </button>
 
         {showDeleteConfirm && (
-          <div style={{ marginTop: '20px', background: '#ffebee', padding: '15px', borderRadius: '5px' }}>
+          <div className="error-message" style={{ marginTop: '20px' }}>
             <p><strong>Warning:</strong> This action cannot be undone. All your data will be permanently deleted.</p>
             <div className="form-group">
               <label>Enter your password to confirm</label>
