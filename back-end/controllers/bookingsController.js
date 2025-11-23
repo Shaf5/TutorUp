@@ -277,7 +277,9 @@ const getStudentPastSessions = async (req, res) => {
        JOIN Tutor t ON s.TutorID = t.TutorID
        LEFT JOIN Attendance a ON b.BookingID = a.BookingID
        LEFT JOIN Review r ON b.BookingID = r.BookingID
-       WHERE b.StudentID = ? AND s.Date < CURDATE()
+       WHERE b.StudentID = ? 
+         AND CONCAT(s.Date, ' ', s.EndTime) < NOW()
+         AND b.Status <> 'Cancelled'
        ORDER BY s.Date DESC, s.StartTime DESC`,
       [studentId]
     );
@@ -341,7 +343,9 @@ const getTutorPastSessions = async (req, res) => {
        JOIN Student st ON b.StudentID = st.StudentID
        LEFT JOIN Attendance a ON b.BookingID = a.BookingID   
        LEFT JOIN Review r ON b.BookingID = r.BookingID
-       WHERE s.TutorID = ? AND s.Date < CURDATE()
+       WHERE s.TutorID = ? 
+         AND CONCAT(s.Date, ' ', s.EndTime) < NOW()
+         AND b.Status = 'Confirmed'
        ORDER BY s.Date DESC, s.StartTime DESC`,
       [tutorId]
     );
