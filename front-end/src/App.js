@@ -92,17 +92,52 @@ function App() {
           <nav className="main-nav">
             {userType === 'student' && (
               <>
-                <button onClick={() => setCurrentPage('majors')}>Browse Courses</button>
-                <button onClick={() => setCurrentPage('student-sessions')}>My Sessions</button>
-                <button onClick={() => setCurrentPage('settings')}>Settings</button>
-                <button onClick={() => setCurrentPage('student-profile')}>Profile</button>
+                <button 
+                  onClick={() => setCurrentPage('majors')}
+                  className={['majors', 'courses', 'course-detail'].includes(currentPage) ? 'active' : ''}
+                >
+                  Browse Courses
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('student-sessions')}
+                  className={currentPage === 'student-sessions' ? 'active' : ''}
+                >
+                  My Sessions
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('settings')}
+                  className={currentPage === 'settings' ? 'active' : ''}
+                >
+                  Settings
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('student-profile')}
+                  className={currentPage === 'student-profile' ? 'active' : ''}
+                >
+                  Profile
+                </button>
               </>
             )}
             {userType === 'tutor' && (
               <>
-                <button onClick={() => setCurrentPage('tutor-sessions')}>My Sessions</button>
-                <button onClick={() => setCurrentPage('settings')}>Settings</button>
-                <button onClick={() => setCurrentPage('tutor-profile')}>Profile</button>
+                <button 
+                  onClick={() => setCurrentPage('tutor-sessions')}
+                  className={currentPage === 'tutor-sessions' ? 'active' : ''}
+                >
+                  My Sessions
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('settings')}
+                  className={currentPage === 'settings' ? 'active' : ''}
+                >
+                  Settings
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('tutor-profile')}
+                  className={currentPage === 'tutor-profile' ? 'active' : ''}
+                >
+                  Profile
+                </button>
               </>
             )}
             <button onClick={handleLogout}>Logout</button>
