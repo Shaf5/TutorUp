@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { getSlotsByDate, createBooking } from '../../services/api';
+
 // Map course codes or names to image filenames
 const courseImages = {
   'CS101': 'cs101.jpg',
@@ -5,8 +8,6 @@ const courseImages = {
   'PHYS101': 'physics.jpg',
   'CHEM101': 'chemistry.jpg',
 };
-import React, { useState, useEffect } from 'react';
-import { getSlotsByDate, createBooking } from '../../services/api';
 
 function CourseDetail({ course, studentId, onNavigate }) {
   const [slots, setSlots] = useState([]);
