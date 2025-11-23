@@ -96,81 +96,17 @@ function StudentProfile({ studentId, onNavigate, onLogout }) {
 
       {profile && (
         <div>
-          <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+          <div className="card" style={{ marginBottom: '20px' }}>
             <h3 style={{ marginTop: 0 }}>Profile Information</h3>
-            <p style={{ fontSize: '1.1em' }}><strong>Name:</strong> {profile.name}</p>
-            <p style={{ fontSize: '1.1em' }}><strong>Email:</strong> {profile.email}</p>
-            <p style={{ fontSize: '1.1em' }}><strong>Member Since:</strong> {profile.DateJoined ? new Date(profile.DateJoined).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}</p>
-            {profile.joined_year && <p style={{ fontSize: '1.1em' }}><strong>Joined Year:</strong> {profile.joined_year}</p>}
+            <p className="profile-info"><strong>Name:</strong> {profile.name}</p>
+            <p className="profile-info"><strong>Email:</strong> {profile.email}</p>
+            <p className="profile-info"><strong>Member Since:</strong> {profile.DateJoined ? new Date(profile.DateJoined).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}</p>
+            {profile.joined_year && <p className="profile-info"><strong>Joined Year:</strong> {profile.joined_year}</p>}
           </div>
 
-          <div style={{ marginTop: '30px' }}>
-            <button 
-              className="btn" 
-              onClick={() => setShowPasswordForm(!showPasswordForm)}
-            >
-              {showPasswordForm ? 'Cancel' : 'Change Password'}
-            </button>
+          {/* Change Password section removed; now only in Settings */}
 
-            {showPasswordForm && (
-              <div className="form-container" style={{ marginTop: '20px' }}>
-                <form onSubmit={handleUpdatePassword}>
-                  <div className="form-group">
-                    <label>Current Password</label>
-                    <input
-                      type="password"
-                      name="currentPassword"
-                      value={passwordData.currentPassword}
-                      onChange={handlePasswordChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>New Password</label>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      value={passwordData.newPassword}
-                      onChange={handlePasswordChange}
-                      required
-                    />
-                  </div>
-                  <button type="submit" className="btn">Update Password</button>
-                </form>
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginTop: '30px', borderTop: '2px solid #ccc', paddingTop: '20px' }}>
-            <h3>Danger Zone</h3>
-            <button 
-              className="btn btn-danger" 
-              onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
-            >
-              {showDeleteConfirm ? 'Cancel' : 'Delete Account'}
-            </button>
-
-            {showDeleteConfirm && (
-              <div style={{ marginTop: '20px', background: '#ffebee', padding: '15px', borderRadius: '5px' }}>
-                <p><strong>Warning:</strong> This action cannot be undone. All your data will be permanently deleted.</p>
-                <div className="form-group">
-                  <label>Enter your password to confirm</label>
-                  <input
-                    type="password"
-                    value={deletePassword}
-                    onChange={(e) => setDeletePassword(e.target.value)}
-                  />
-                </div>
-                <button 
-                  className="btn btn-danger" 
-                  onClick={handleDeleteAccount}
-                  disabled={!deletePassword}
-                >
-                  Confirm Delete Account
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Danger Zone (Delete Account) removed; now only in Settings */}
         </div>
       )}
     </div>

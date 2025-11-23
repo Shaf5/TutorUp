@@ -1,3 +1,14 @@
+// Map course codes or names to image filenames
+const courseImages = {
+  // Example: 'CS101': 'cs101.jpg',
+  // 'Mathematics': 'math.jpg',
+  // Add your mappings here
+  'CS101': 'cs101.jpg',
+  'MATH201': 'math201.jpg',
+  'PHYS101': 'physics.jpg',
+  'CHEM101': 'chemistry.jpg',
+  // fallback for demonstration
+};
 import React, { useState, useEffect } from 'react';
 import { getCoursesByMajor } from '../../services/api';
 
@@ -58,6 +69,24 @@ function CoursesList({ major, onNavigate, onSelectCourse }) {
               className="card"
               onClick={() => handleCourseClick(course)}
             >
+              <img
+                src={
+                  course.image
+                    ? `/course-images/${course.image}`
+                    : courseImages[course.CourseCode] 
+                      ? `/course-images/${courseImages[course.CourseCode]}`
+                      : undefined
+                }
+                alt={course.CourseName}
+                style={{
+                  width: '100%',
+                  maxHeight: '160px',
+                  objectFit: 'cover',
+                  borderRadius: '6px',
+                  marginBottom: '12px',
+                  display: (course.image || courseImages[course.CourseCode]) ? 'block' : 'none'
+                }}
+              />
               <h3>{course.CourseName}</h3>
               <p><strong>Course Code:</strong> {course.CourseCode}</p>
               {course.Description && <p>{course.Description}</p>}
