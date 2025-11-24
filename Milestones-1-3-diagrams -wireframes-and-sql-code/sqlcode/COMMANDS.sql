@@ -520,34 +520,26 @@ CREATE PROCEDURE GetTutorUpcomingSessions (
 )
 BEGIN
     SELECT
-        b.BookingID,
+        s.SlotID,
         s.Date,
         s.StartTime,
+        s.EndTime,
         s.Location,
         c.CourseName,
-        st.FullName AS StudentName,
-        b.Status
+        c.CourseID,
+        b.Status,
+  GROUP_CONCAT(DISTINCT st.FullName SEPARATOR ', ') AS StudentNames,
+  GROUP_CONCAT(DISTINCT st.StudentID SEPARATOR '||') AS StudentIDs,
+  GROUP_CONCAT(DISTINCT b.BookingID SEPARATOR '||') AS StudentBookingIDs
     FROM Booking b
     JOIN AvailabilitySlot s ON b.SlotID = s.SlotID
-    JOIN Course c          ON s.CourseID = c.CourseID
-    JOIN Student st        ON b.StudentID = st.StudentID
+    JOIN Course c ON s.CourseID = c.CourseID
+    JOIN Student st ON b.StudentID = st.StudentID
     WHERE s.TutorID = p_tutor_id
       AND s.Date >= CURDATE()
       AND b.Status = 'Confirmed'
-    ORDER BY
-        -- sort by time (default)
-        CASE WHEN p_sort_by = 'time' OR p_sort_by IS NULL OR p_sort_by = '' THEN s.Date END ASC,
-        CASE WHEN p_sort_by = 'time' OR p_sort_by IS NULL OR p_sort_by = '' THEN s.StartTime END ASC,
-
-        -- sort by student name
-        CASE WHEN p_sort_by = 'student' THEN st.FullName END ASC,
-        CASE WHEN p_sort_by = 'student' THEN s.Date END ASC,
-        CASE WHEN p_sort_by = 'student' THEN s.StartTime END ASC,
-
-        -- sort by course name
-        CASE WHEN p_sort_by = 'course' THEN c.CourseName END ASC,
-        CASE WHEN p_sort_by = 'course' THEN s.Date END ASC,
-        CASE WHEN p_sort_by = 'course' THEN s.StartTime END ASC;
+    GROUP BY s.SlotID, s.Date, s.StartTime, s.EndTime, s.Location, c.CourseName, c.CourseID, b.Status
+    ORDER BY s.Date ASC, s.StartTime ASC;
 END$$
 
 DELIMITER ;
