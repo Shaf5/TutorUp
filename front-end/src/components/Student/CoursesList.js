@@ -87,24 +87,27 @@ function CoursesList({ major, onNavigate, onSelectCourse }) {
               className="card"
               onClick={() => handleCourseClick(course)}
             >
-              <img
-                src={
-                  course.image
-                    ? `/course-images/${course.image}`
-                    : courseImages[course.CourseCode] 
-                      ? `/course-images/${courseImages[course.CourseCode]}`
-                      : undefined
-                }
-                alt={course.CourseName}
-                style={{
-                  width: '100%',
-                  maxHeight: '160px',
-                  objectFit: 'cover',
-                  borderRadius: '6px',
-                  marginBottom: '12px',
-                  display: (course.image || courseImages[course.CourseCode]) ? 'block' : 'none'
-                }}
-              />
+              {/* Hide image for Intro to Programming (CS101) and Calculus II (MATH201) */}
+              {course.CourseCode !== 'CS101' && course.CourseCode !== 'MATH201' && (
+                <img
+                  src={
+                    course.image
+                      ? `/course-images/${course.image}`
+                      : courseImages[course.CourseCode] 
+                        ? `/course-images/${courseImages[course.CourseCode]}`
+                        : undefined
+                  }
+                  alt={course.CourseName}
+                  style={{
+                    width: '100%',
+                    maxHeight: '160px',
+                    objectFit: 'cover',
+                    borderRadius: '6px',
+                    marginBottom: '12px',
+                    display: (course.image || courseImages[course.CourseCode]) ? 'block' : 'none'
+                  }}
+                />
+              )}
               <h3>{course.CourseName}</h3>
               <p><strong>Course Code:</strong> {course.CourseCode}</p>
               {course.Description && <p>{course.Description}</p>}
