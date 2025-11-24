@@ -31,6 +31,7 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const drawerRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const [overlayMounted, setOverlayMounted] = useState(false);
 
   // Close mobile drawer when clicking outside (in addition to overlay)
   useEffect(() => {
@@ -50,6 +51,45 @@ function App() {
     return () => {
       document.removeEventListener('mousedown', handleOutside);
       document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [isMobileMenuOpen]);
+
+  // Manage overlay mount for fade in/out
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setOverlayMounted(true);
+    } else if (overlayMounted) {
+      const t = setTimeout(() => setOverlayMounted(false), 350);
+      return () => clearTimeout(t);
+    }
+  }, [isMobileMenuOpen, overlayMounted]);
+
+  // Lock body scroll & provide blocked scroll feedback animation
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const blockedScroll = (e) => {
+      if (drawerRef.current && drawerRef.current.contains(e.target)) return; // allow scroll inside drawer (if scrollable)
+      e.preventDefault();
+      if (drawerRef.current) {
+        drawerRef.current.classList.add('block-feedback');
+        setTimeout(() => {
+          drawerRef.current && drawerRef.current.classList.remove('block-feedback');
+        }, 400);
+      }
+    };
+    document.addEventListener('wheel', blockedScroll, { passive: false });
+    document.addEventListener('touchmove', blockedScroll, { passive: false });
+    return () => {
+      document.removeEventListener('wheel', blockedScroll);
+      document.removeEventListener('touchmove', blockedScroll);
     };
   }, [isMobileMenuOpen]);
 
@@ -114,6 +154,26 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1 className="desktop-title">TutorUp</h1>
+        {/* Mobile Topbar always shows brand title; hamburger only if authenticated */}
+        <div className="mobile-topbar mobile-only">
+          {user && (
+            <button
+              type="button"
+              className={`hamburger-button ${isMobileMenuOpen ? 'open' : ''}`}
+              aria-label={isMobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              ref={hamburgerRef}
+            >
+              <svg className="hamburger-icon" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
+                <line x1="2" y1="3" x2="22" y2="3" />
+                <line x1="2" y1="9" x2="22" y2="9" />
+                <line x1="2" y1="15" x2="22" y2="15" />
+              </svg>
+            </button>
+          )}
+          <span className="mobile-topbar-title">TutorUp</span>
+        </div>
         {user && (
           <>
             {/* Desktop Navigation */}
@@ -170,25 +230,6 @@ function App() {
               )}
               <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </nav>
-
-            {/* Mobile Topbar */}
-            <div className="mobile-topbar mobile-only">
-              <button
-                type="button"
-                className="hamburger-button"
-                aria-label={isMobileMenuOpen ? 'Close navigation' : 'Open navigation'}
-                aria-expanded={isMobileMenuOpen}
-                onClick={() => setIsMobileMenuOpen((v) => !v)}
-                ref={hamburgerRef}
-              >
-                <svg className="hamburger-icon" viewBox="0 0 24 18" aria-hidden="true" focusable="false">
-                  <line x1="2" y1="3" x2="22" y2="3" />
-                  <line x1="2" y1="9" x2="22" y2="9" />
-                  <line x1="2" y1="15" x2="22" y2="15" />
-                </svg>
-              </button>
-              <span className="mobile-topbar-title">TutorUp</span>
-            </div>
 
             {/* Mobile Drawer */}
             <div ref={drawerRef} className={`mobile-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
@@ -273,9 +314,9 @@ function App() {
                 Logout
               </button>
             </div>
-            {isMobileMenuOpen && (
+            {overlayMounted && (
               <div
-                className="mobile-drawer-overlay mobile-only"
+                className={`mobile-drawer-overlay mobile-only ${isMobileMenuOpen ? 'open' : 'closing'}`}
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-hidden
               />
