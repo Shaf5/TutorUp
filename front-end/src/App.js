@@ -232,7 +232,7 @@ function App() {
             </nav>
 
             {/* Mobile Drawer */}
-            <div ref={drawerRef} className={`mobile-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
+            <div ref={drawerRef} className={`mobile-drawer mobile-only ${isMobileMenuOpen ? 'open' : ''}`}>
               {userType === 'student' && (
                 <>
                   <button
