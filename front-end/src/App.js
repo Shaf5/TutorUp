@@ -28,6 +28,7 @@ function App() {
   const [userType, setUserType] = useState(null);
   const [selectedMajor, setSelectedMajor] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogin = (userData, type) => {
     setUser(userData);
@@ -91,59 +92,168 @@ function App() {
       <header className="App-header">
         <h1>TutorUp</h1>
         {user && (
-          <nav className="main-nav">
-            {userType === 'student' && (
-              <>
-                <button 
-                  onClick={() => setCurrentPage('majors')}
-                  className={['majors', 'courses', 'course-detail'].includes(currentPage) ? 'active' : ''}
-                >
-                  Browse Courses
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('student-sessions')}
-                  className={currentPage === 'student-sessions' ? 'active' : ''}
-                >
-                  My Sessions
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('settings')}
-                  className={currentPage === 'settings' ? 'active' : ''}
-                >
-                  Settings
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('student-profile')}
-                  className={currentPage === 'student-profile' ? 'active' : ''}
-                >
-                  Profile
-                </button>
-              </>
+          <>
+            {/* Desktop Navigation */}
+            <nav className="main-nav desktop-only">
+              {userType === 'student' && (
+                <>
+                  <button 
+                    onClick={() => setCurrentPage('majors')}
+                    className={['majors', 'courses', 'course-detail'].includes(currentPage) ? 'active' : ''}
+                  >
+                    Browse Courses
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage('student-sessions')}
+                    className={currentPage === 'student-sessions' ? 'active' : ''}
+                  >
+                    My Sessions
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage('settings')}
+                    className={currentPage === 'settings' ? 'active' : ''}
+                  >
+                    Settings
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage('student-profile')}
+                    className={currentPage === 'student-profile' ? 'active' : ''}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              {userType === 'tutor' && (
+                <>
+                  <button 
+                    onClick={() => setCurrentPage('tutor-sessions')}
+                    className={currentPage === 'tutor-sessions' ? 'active' : ''}
+                  >
+                    My Sessions
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage('settings')}
+                    className={currentPage === 'settings' ? 'active' : ''}
+                  >
+                    Settings
+                  </button>
+                  <button 
+                    onClick={() => setCurrentPage('tutor-profile')}
+                    className={currentPage === 'tutor-profile' ? 'active' : ''}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              <button className="logout-btn" onClick={handleLogout}>Logout</button>
+            </nav>
+
+            {/* Mobile Topbar */}
+            <div className="mobile-topbar mobile-only">
+              <button
+                type="button"
+                className="hamburger-button"
+                aria-label="Open navigation"
+                aria-expanded={isMobileMenuOpen}
+                onClick={() => setIsMobileMenuOpen((v) => !v)}
+              >
+                <span className="hamburger-bar" />
+                <span className="hamburger-bar" />
+                <span className="hamburger-bar" />
+              </button>
+            </div>
+
+            {/* Mobile Drawer */}
+            <div className={`mobile-drawer ${isMobileMenuOpen ? 'open' : ''}`}>
+              {userType === 'student' && (
+                <>
+                  <button
+                    className={`mobile-drawer-item ${['majors', 'courses', 'course-detail'].includes(currentPage) ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('majors');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Browse Courses
+                  </button>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'student-sessions' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('student-sessions');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    My Sessions
+                  </button>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'settings' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('settings');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Settings
+                  </button>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'student-profile' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('student-profile');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              {userType === 'tutor' && (
+                <>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'tutor-sessions' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('tutor-sessions');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    My Sessions
+                  </button>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'settings' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('settings');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Settings
+                  </button>
+                  <button
+                    className={`mobile-drawer-item ${currentPage === 'tutor-profile' ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentPage('tutor-profile');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+              <button
+                className="mobile-drawer-item"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+              >
+                Logout
+              </button>
+            </div>
+            {isMobileMenuOpen && (
+              <div
+                className="mobile-drawer-overlay mobile-only"
+                onClick={() => setIsMobileMenuOpen(false)}
+                aria-hidden
+              />
             )}
-            {userType === 'tutor' && (
-              <>
-                <button 
-                  onClick={() => setCurrentPage('tutor-sessions')}
-                  className={currentPage === 'tutor-sessions' ? 'active' : ''}
-                >
-                  My Sessions
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('settings')}
-                  className={currentPage === 'settings' ? 'active' : ''}
-                >
-                  Settings
-                </button>
-                <button 
-                  onClick={() => setCurrentPage('tutor-profile')}
-                  className={currentPage === 'tutor-profile' ? 'active' : ''}
-                >
-                  Profile
-                </button>
-              </>
-            )}
-            <button onClick={handleLogout}>Logout</button>
-          </nav>
+          </>
         )}
       </header>
       <main className="App-main">
