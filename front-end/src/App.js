@@ -36,11 +36,13 @@ function App() {
   };
 
   const handleLogout = () => {
-    setUser(null);
-    setUserType(null);
-    setCurrentPage('welcome');
-    setSelectedMajor(null);
-    setSelectedCourse(null);
+    if (window.confirm('Are you sure you want to logout?')) {
+      setUser(null);
+      setUserType(null);
+      setCurrentPage('welcome');
+      setSelectedMajor(null);
+      setSelectedCourse(null);
+    }
   };
 
   const renderPage = () => {
